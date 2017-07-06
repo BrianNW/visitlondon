@@ -1,0 +1,25 @@
+{
+  "name": "workflow",
+  "version": "1.0.0",
+  "description": "My web workflow with Gulp, SASS, NPM and more",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrianNW/workflow.git"
+  },
+  "keywords": [
+    "SASS",
+    "NPM",
+    "Git",
+    "Gulp"
+  ],
+  "author": "Brian W.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrianNW/workflow/issues"
+  },
+  "homepage": "https://github.com/BrianNW/workflow#readme"
+}
