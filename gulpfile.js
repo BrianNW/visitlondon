@@ -5,8 +5,10 @@ var sass = require('gulp-sass');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload; //sub-method from browserSync
 var autoprefixer = require('gulp-autoprefixer');
+var browserify = require('gulp-browserify');
 var clean = require('gulp-clean');
 var concat = require('gulp-concat');
+var merge = require ('merge-stream');
 
 
 var SOURCEPATHS = {  //src folder where changes are initially made
@@ -37,20 +39,27 @@ gulp.task('clean-scripts', function() {
 
 //tasks method used for gulp
 gulp.task('sass', function(){
-  return gulp.src(SOURCEPATHS.sassSource)
+  var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
+  var sassFiles;
+
+sassFiles =  gulp.src(SOURCEPATHS.sassSource)
     //autoprefixer
     .pipe(autoprefixer())
     //The gulp task sass will pupe the src/scss/app.scss file
     //changes into the app/css/app.css file
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
-    //output can be compressed or minified instead of expanded
-    .pipe(gulp.dest(APPPATH.css));
+
+    return merge(bootstrapCSS, sassFiles)
+      .pipe(concat('app.css'))
+      //output can be compressed or minified instead of expanded
+      .pipe(gulp.dest(APPPATH.css));
 
 });
 
 gulp.task('scripts', ['clean-scripts'], function() {
   gulp.src(SOURCEPATHS.jsSource)
     .pipe(concat('main.js'))
+    .pipe(browserify())
     .pipe(gulp.dest(APPPATH.js))
 });
 
