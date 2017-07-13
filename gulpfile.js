@@ -6,6 +6,7 @@ var browserSync = require('browser-sync');
 var reload = browserSync.reload; //sub-method from browserSync
 var autoprefixer = require('gulp-autoprefixer');
 var clean = require('gulp-clean');
+var concat = require('gulp-concat');
 
 
 var SOURCEPATHS = {  //src folder where changes are initially made
@@ -49,9 +50,10 @@ gulp.task('sass', function(){
 
 gulp.task('scripts', ['clean-scripts'], function() {
   gulp.src(SOURCEPATHS.jsSource)
+    .pipe(concat('main.js'))
     .pipe(gulp.dest(APPPATH.js))
-
 });
+
 
 //GULP TASK TO COPY HTML FILES FROM APP to SRC
 gulp.task('copy', ['clean-html'], function() {
