@@ -5,18 +5,34 @@ var sass = require('gulp-sass');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload; //sub-method from browserSync
 var autoprefixer = require('gulp-autoprefixer');
+var clean = require('gulp-clean');
 
 
 var SOURCEPATHS = {  //src folder where changes are initially made
 
   sassSource : 'src/scss/*.scss',  //will check for any file that has .scss extension
-  htmlSource: 'src/*.html'
+  htmlSource: 'src/*.html',
+  jsSource : 'src/js/**'
 }
 var APPPATH = {  //app folder where final app is located
   root : 'app/',
   css : 'app/css',
   js : 'app/js'
 }
+
+//GULP TASK USED TO CLEAN UP UNUSED /APP INDEX FILES
+gulp.task('clean-html', function() {
+  return gulp.src(APPPATH.root + '/*.html', {read: false, force: true})
+    .pipe(clean());
+
+});
+//GULP TASK USED TO CLEAN UP UNUSED /APP JS FILES
+gulp.task('clean-scripts', function() {
+  return gulp.src(APPPATH.js + '/*.js', {read: false, force: true})
+    .pipe(clean());
+
+});
+
 
 //tasks method used for gulp
 gulp.task('sass', function(){
@@ -31,11 +47,19 @@ gulp.task('sass', function(){
 
 });
 
-gulp.task('copy', function() {
+gulp.task('scripts', ['clean-scripts'], function() {
+  gulp.src(SOURCEPATHS.jsSource)
+    .pipe(gulp.dest(APPPATH.js))
+
+});
+
+//GULP TASK TO COPY HTML FILES FROM APP to SRC
+gulp.task('copy', ['clean-html'], function() {
   gulp.src(SOURCEPATHS.htmlSource)
     .pipe(gulp.dest(APPPATH.root))
 });
 
+//GULP TASK TO START UP SASS
 gulp.task('serve', ['sass'], function() {
   browserSync.init([APPPATH.css + '/*.css', APPPATH.root + '/*.html', APPPATH.js + '/*.js'], {
     server : {
@@ -45,9 +69,12 @@ gulp.task('serve', ['sass'], function() {
   //initializes browserSync
 });
 
-gulp.task('watch', ['serve', 'sass', 'copy'], function () {
+
+//GULP TASK TO START UP ALL TASKS
+gulp.task('watch', ['serve', 'sass', 'copy', 'clean-html', 'clean-scripts', 'scripts'], function () {
   gulp.watch([SOURCEPATHS.sassSource], ['sass']);
   gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
+  gulp.watch([SOURCEPATHS.jsSource], ['scripts']);
 
 });
 
