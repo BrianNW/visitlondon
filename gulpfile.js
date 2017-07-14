@@ -15,6 +15,7 @@ var injectPartials = require('gulp-inject-partials');
 var minify = require('gulp-minify');
 var rename = require('gulp-rename');
 var cssmin = require('gulp-cssmin');
+var htmlmin = require('gulp-htmlmin');
 
 
 var SOURCEPATHS = {  //src folder where changes are initially made
@@ -112,6 +113,14 @@ sassFiles =  gulp.src(SOURCEPATHS.sassSource)
 
 });
 
+gulp.task('minifyHtml', function() {
+  return gulp.src(SOURCEPATHS.htmlSource)
+    .pipe(injectPartials())
+    .pipe(htmlmin({collapseWhitespace:true}))
+    .pipe(gulp.dest(APPPATH.root))
+
+});
+
 // end of production task
 
 //Make sure to comment out any instances of copy when using inject partials
@@ -151,3 +160,6 @@ gulp.task('watch', ['serve', 'sass',  'clean-html', 'clean-scripts', 'scripts', 
 
 gulp.task('default',['watch'] );
 //['*task', 'task2', ...] tasks will run with defult gulp command
+
+
+gulp.task('production', ['minifyHtml', 'compresscss', 'compress']);
