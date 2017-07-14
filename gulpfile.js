@@ -11,12 +11,17 @@ var concat = require('gulp-concat');
 var merge = require ('merge-stream');
 var newer = require('gulp-newer');
 var imagemin = require('gulp-imagemin');
+var injectPartials = require('gulp-inject-partials');
+var minify = require('gulp-minify');
+var rename = require('gulp-rename');
+var cssmin = require('gulp-cssmin');
 
 
 var SOURCEPATHS = {  //src folder where changes are initially made
 
   sassSource : 'src/scss/*.scss',  //will check for any file that has .scss extension
   htmlSource: 'src/*.html',
+  htmlPartialSource : 'src/partial/*.html',
   jsSource : 'src/js/**',
   imgSource : 'src/img/**'
 }
@@ -82,12 +87,47 @@ gulp.task('scripts', ['clean-scripts'], function() {
     .pipe(gulp.dest(APPPATH.js))
 });
 
+// production task
+
+gulp.task('compress', function() {
+  gulp.src(SOURCEPATHS.jsSource)
+    .pipe(concat('main.js'))
+    .pipe(browserify())
+    .pipe(minify())
+    .pipe(gulp.dest(APPPATH.js))
+});
+
+gulp.task('compresscss', function(){
+  var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
+  var sassFiles;
+
+sassFiles =  gulp.src(SOURCEPATHS.sassSource)
+    .pipe(autoprefixer())
+    .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
+    return merge(bootstrapCSS, sassFiles)
+      .pipe(concat('app.css'))
+      .pipe(cssmin())
+        .pipe(rename({suffix: '.min'}))
+      .pipe(gulp.dest(APPPATH.css));
+
+});
+
+// end of production task
+
+//Make sure to comment out any instances of copy when using inject partials
+gulp.task('html', function() {
+  return gulp.src(SOURCEPATHS.htmlSource)
+    .pipe(injectPartials())
+    .pipe(gulp.dest(APPPATH.root))
+
+});
+
 
 //GULP TASK TO COPY HTML FILES FROM APP to SRC
-gulp.task('copy', ['clean-html'], function() {
-  gulp.src(SOURCEPATHS.htmlSource)
-    .pipe(gulp.dest(APPPATH.root))
-});
+// gulp.task('copy', ['clean-html'], function() {
+//   gulp.src(SOURCEPATHS.htmlSource)
+//     .pipe(gulp.dest(APPPATH.root))
+// });
 
 //GULP TASK TO START UP SASS
 gulp.task('serve', ['sass'], function() {
@@ -101,11 +141,12 @@ gulp.task('serve', ['sass'], function() {
 
 
 //GULP TASK TO START UP ALL TASKS
-gulp.task('watch', ['serve', 'sass', 'copy', 'clean-html', 'clean-scripts', 'scripts', 'moveFonts', 'images'], function () {
+gulp.task('watch', ['serve', 'sass',  'clean-html', 'clean-scripts', 'scripts', 'moveFonts', 'images', 'html'], function () {
   gulp.watch([SOURCEPATHS.sassSource], ['sass']);
-  gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
+  // gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
   gulp.watch([SOURCEPATHS.jsSource], ['scripts']);
-
+  gulp.watch([SOURCEPATHS.imgSource], ['images']);
+  gulp.watch([SOURCEPATHS.htmlSource, SOURCEPATHS.htmlPartialSource], ['html']);
 });
 
 gulp.task('default',['watch'] );
