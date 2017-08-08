@@ -21,6 +21,7 @@ var htmlmin = require('gulp-htmlmin');
 var SOURCEPATHS = {  //src folder where changes are initially made
 
   sassSource : 'src/scss/*.scss',  //will check for any file that has .scss extension
+  sassApp : 'src/scss/app.scss',
   htmlSource: 'src/*.html',
   htmlPartialSource : 'src/partial/*.html',
   jsSource : 'src/js/**',
@@ -50,17 +51,12 @@ gulp.task('clean-scripts', function() {
 
 //tasks method used for gulp
 gulp.task('sass', function(){
-  var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
-  var sassFiles;
-
-sassFiles =  gulp.src(SOURCEPATHS.sassSource)
+sassFiles =  gulp.src(SOURCEPATHS.sassApp)
     //autoprefixer
     .pipe(autoprefixer())
     //The gulp task sass will pupe the src/scss/app.scss file
     //changes into the app/css/app.css file
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
-
-    return merge(bootstrapCSS, sassFiles)
       .pipe(concat('app.css'))
       //output can be compressed or minified instead of expanded
       .pipe(gulp.dest(APPPATH.css));
@@ -72,12 +68,6 @@ gulp.task('images', function() {
     .pipe(newer(APPPATH.img))
     .pipe(imagemin())
     .pipe(gulp.dest(APPPATH.img));
-});
-
-gulp.task('moveFonts', function() {
-  gulp.src('./node_modules/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2,}')
-    .pipe(gulp.dest(APPPATH.fonts));
-
 });
 
 
@@ -99,13 +89,10 @@ gulp.task('compress', function() {
 });
 
 gulp.task('compresscss', function(){
-  var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
-  var sassFiles;
 
 sassFiles =  gulp.src(SOURCEPATHS.sassSource)
     .pipe(autoprefixer())
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
-    return merge(bootstrapCSS, sassFiles)
       .pipe(concat('app.css'))
       .pipe(cssmin())
         .pipe(rename({suffix: '.min'}))
@@ -150,7 +137,7 @@ gulp.task('serve', ['sass'], function() {
 
 
 //GULP TASK TO START UP ALL TASKS
-gulp.task('watch', ['serve', 'sass',  'clean-html', 'clean-scripts', 'scripts', 'moveFonts', 'images', 'html'], function () {
+gulp.task('watch', ['serve', 'sass',  'clean-html', 'clean-scripts', 'scripts', 'images', 'html'], function () {
   gulp.watch([SOURCEPATHS.sassSource], ['sass']);
   // gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
   gulp.watch([SOURCEPATHS.jsSource], ['scripts']);

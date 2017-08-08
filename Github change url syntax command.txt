@@ -1,0 +1,6 @@
+>git remote set-url origin https://github.com/BrianNW/visitlondon
+>git remote add upstream https://github.com/BrianNW/visitlondon
+>git push origin master
+>git push --all
+
+>npm install
